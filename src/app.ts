@@ -1,0 +1,60 @@
+import express from 'express';
+import 'express-async-errors'; // Must be imported before routes to catch async errors
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import expressMongoSanitize from 'express-mongo-sanitize';
+import rateLimit from 'express-rate-limit';
+import { corsMiddleware } from '@/modules/common/middleware/cors.middleware';
+import { errorMiddleware } from '@/modules/common/middleware/error.middleware';
+import { logger } from '@/modules/common/utils/logger';
+import routes from './routes';
+import { config } from './config';
+
+const app = express();
+
+// Security middleware
+app.use(helmet()); // Sets various HTTP headers for security
+app.use(corsMiddleware); // Dynamic CORS configuration
+app.use(expressMongoSanitize()); // Prevents NoSQL injection attacks
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
+app.use(cookieParser()); // Parse cookies
+
+// Rate limiting
+// Note: In production, use Redis store for distributed rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', limiter);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: config.nodeEnv,
+  });
+});
+
+// API routes
+app.use('/api', routes);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    status: 'error',
+    message: 'Route not found',
+  });
+});
+
+// Error handling middleware (must be last)
+app.use(errorMiddleware);
+
+export default app;
+
