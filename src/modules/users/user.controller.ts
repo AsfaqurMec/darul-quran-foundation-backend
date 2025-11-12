@@ -23,10 +23,13 @@ export class UserController {
       status: 'success',
       data: {
         id: user.id,
-        name: user.name,
+        fullName: user.fullName,
         email: user.email,
+        phone: user.phone,
         role: user.role,
         avatar: user.avatar,
+        address: user.address,
+        pictures: user.pictures || [],
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
@@ -55,11 +58,14 @@ export class UserController {
       throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Not authenticated');
     }
 
-    const { name, email, avatar } = req.body;
+    const { fullName, email, phone, address, pictures, avatar } = req.body;
 
     const user = await userService.updateUser(req.user.id, {
-      ...(name && { name }),
+      ...(fullName && { fullName }),
       ...(email && { email }),
+      ...(phone && { phone }),
+      ...(address && { address }),
+      ...(Array.isArray(pictures) && { pictures }),
       ...(avatar && { avatar }),
     });
 
@@ -71,10 +77,13 @@ export class UserController {
       status: 'success',
       data: {
         id: user.id,
-        name: user.name,
+        fullName: user.fullName,
         email: user.email,
+        phone: user.phone,
         role: user.role,
         avatar: user.avatar,
+        address: user.address,
+        pictures: user.pictures || [],
         updatedAt: user.updatedAt,
       },
     });

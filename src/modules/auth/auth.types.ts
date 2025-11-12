@@ -7,9 +7,12 @@ export interface LoginResponse {
   data: {
     user: {
       id: string;
-      name: string;
-      email: string;
+      fullName: string;
+      email?: string;
+      phone?: string;
       role: string;
+      address?: string;
+      pictures: string[];
     };
     accessToken: string;
   };
@@ -20,9 +23,12 @@ export interface RegisterResponse {
   data: {
     user: {
       id: string;
-      name: string;
-      email: string;
+      fullName: string;
+      email?: string;
+      phone?: string;
       role: string;
+      address?: string;
+      pictures: string[];
     };
     accessToken: string;
   };

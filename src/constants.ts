@@ -3,8 +3,8 @@
  */
 
 export const ROLES = {
-  SUPERADMIN: 'superadmin',
   ADMIN: 'admin',
+  EDITOR: 'editor',
   DONORS: 'donors',
 } as const;
 

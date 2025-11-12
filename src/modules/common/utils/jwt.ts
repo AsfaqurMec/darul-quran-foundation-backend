@@ -3,8 +3,10 @@ import { config } from '@/config';
 
 export interface TokenPayload {
   id: string;
-  email: string;
   role: string;
+  identifier: string;
+  email?: string | null;
+  phone?: string | null;
 }
 
 /**

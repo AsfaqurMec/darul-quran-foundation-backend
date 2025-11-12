@@ -40,11 +40,15 @@ export const errorMiddleware = (
 
   // Handle known error types
   if (err instanceof ApiError) {
-    return res.status(err.statusCode).json({
+    const payload: Record<string, unknown> = {
       status: 'error',
       message: err.message,
-      ...(err.details && { details: err.details }),
-    });
+    };
+    if (typeof err.details !== 'undefined') {
+      payload.details = err.details;
+    }
+    res.status(err.statusCode).json(payload);
+    return;
   }
 
   // Handle Zod validation errors
@@ -54,11 +58,12 @@ export const errorMiddleware = (
       message: e.message,
     }));
 
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       status: 'error',
       message: 'Validation failed',
       details: errors,
     });
+    return;
   }
 
   // Handle Mongoose validation errors
@@ -68,38 +73,44 @@ export const errorMiddleware = (
       message: e.message,
     }));
 
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       status: 'error',
       message: 'Validation failed',
       details: errors,
     });
+    return;
   }
 
   // Handle Mongoose duplicate key errors
   if (err instanceof mongoose.Error && (err as any).code === 11000) {
-    return res.status(HTTP_STATUS.CONFLICT).json({
+    res.status(HTTP_STATUS.CONFLICT).json({
       status: 'error',
       message: 'Duplicate entry',
       details: 'A record with this value already exists',
     });
+    return;
   }
 
   // Handle JWT errors
   if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
-    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({
       status: 'error',
       message: 'Invalid or expired token',
     });
+    return;
   }
 
   // Default: Internal server error
-  res.status(HTTP_STATUS.INTERNAL_ERROR).json({
+  const defaultPayload: Record<string, unknown> = {
     status: 'error',
     message:
       config.nodeEnv === 'production'
         ? 'Internal server error'
         : err.message,
-    ...(config.nodeEnv === 'development' && { stack: err.stack }),
-  });
+  };
+  if (config.nodeEnv === 'development') {
+    defaultPayload.stack = err.stack;
+  }
+  res.status(HTTP_STATUS.INTERNAL_ERROR).json(defaultPayload);
 };
 

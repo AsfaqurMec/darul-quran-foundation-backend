@@ -5,35 +5,80 @@ import { ROLES } from '@/constants';
  * Zod schemas for user validation
  */
 
-export const registerSchema = z.object({
-  name: z
-    .string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must not exceed 100 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
-  role: z.enum([ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.DONORS]).optional(),
-});
+const phoneRegex = /^\+?[1-9]\d{7,14}$/;
+
+export const registerSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(2, 'Full name must be at least 2 characters')
+      .max(100, 'Full name must not exceed 100 characters'),
+    email: z.string().email('Invalid email address').optional(),
+    phone: z.string().regex(phoneRegex, 'Invalid phone number').optional(),
+    address: z
+      .string()
+      .max(255, 'Address must not exceed 255 characters')
+      .optional(),
+    pictures: z.array(z.string().url('Picture must be a valid URL')).optional(),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number'),
+    role: z.enum([ROLES.ADMIN, ROLES.EDITOR, ROLES.DONORS]).optional(),
+  })
+  .refine(
+    (data) => {
+      const hasEmail = Boolean(data.email && data.email.trim());
+      const hasPhone = Boolean(data.phone && data.phone.trim());
+      return hasEmail || hasPhone;
+    },
+    {
+      message: 'Either email or phone must be provided',
+      path: ['email'],
+    }
+  );
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  identifier: z
+    .string()
+    .min(3, 'Identifier must be at least 3 characters')
+    .max(255, 'Identifier must not exceed 255 characters'),
   password: z.string().min(1, 'Password is required'),
 });
 
-export const updateUserSchema = z.object({
-  name: z
-    .string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must not exceed 100 characters')
-    .optional(),
-  email: z.string().email('Invalid email address').optional(),
-  role: z.enum([ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.DONORS]).optional(),
-});
+export const updateUserSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(2, 'Full name must be at least 2 characters')
+      .max(100, 'Full name must not exceed 100 characters')
+      .optional(),
+    email: z.string().email('Invalid email address').optional(),
+    phone: z.string().regex(phoneRegex, 'Invalid phone number').optional(),
+    address: z
+      .string()
+      .max(255, 'Address must not exceed 255 characters')
+      .optional(),
+    pictures: z.array(z.string().url('Picture must be a valid URL')).optional(),
+    role: z.enum([ROLES.ADMIN, ROLES.EDITOR, ROLES.DONORS]).optional(),
+    avatar: z.string().url('Avatar must be a valid URL').optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.email && !data.phone) {
+        return true;
+      }
+      const hasEmail = Boolean(data.email && data.email.trim());
+      const hasPhone = Boolean(data.phone && data.phone.trim());
+      return hasEmail || hasPhone;
+    },
+    {
+      message: 'Either email or phone must be provided',
+      path: ['email'],
+    }
+  );
 
 export const changePasswordSchema = z
   .object({

@@ -1,23 +1,48 @@
+import { FilterQuery } from 'mongoose';
 import { User, IUser } from './user.model';
 import { hashPassword, comparePassword, compareToken } from '@/modules/common/utils/hash';
 import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
-import { ROLES } from '@/constants';
+import { HTTP_STATUS, ROLES, Role } from '@/constants';
 
 export class UserService {
   /**
    * Create a new user
    */
   async createUser(
-    name: string,
-    email: string,
-    password: string,
-    role?: string
+    input: {
+      fullName: string;
+      email?: string;
+      phone?: string;
+      password: string;
+      role?: string;
+      address?: string;
+      pictures?: string[];
+      avatar?: string;
+    }
   ): Promise<IUser> {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email }).select('+passwordHash');
-    if (existingUser) {
-      throw new ApiError(HTTP_STATUS.CONFLICT, 'User already exists');
+    const { fullName, email, phone, password, role, address, pictures, avatar } = input;
+
+    const sanitizedEmail = email?.trim().toLowerCase();
+    const sanitizedPhone = phone?.trim();
+    const sanitizedAddress = address?.trim();
+
+    if (!sanitizedEmail && !sanitizedPhone) {
+      throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'Either email or phone must be provided');
+    }
+
+    // Check if user already exists via email or phone
+    if (sanitizedEmail) {
+      const existingEmail = await User.findOne({ email: sanitizedEmail }).select('+passwordHash');
+      if (existingEmail) {
+        throw new ApiError(HTTP_STATUS.CONFLICT, 'Email already in use');
+      }
+    }
+
+    if (sanitizedPhone) {
+      const existingPhone = await User.findOne({ phone: sanitizedPhone }).select('+passwordHash');
+      if (existingPhone) {
+        throw new ApiError(HTTP_STATUS.CONFLICT, 'Phone already in use');
+      }
     }
 
     // Hash password
@@ -25,24 +50,50 @@ export class UserService {
 
     // Create user
     const user = await User.create({
-      name,
-      email,
+      fullName,
+      email: sanitizedEmail,
+      phone: sanitizedPhone,
       passwordHash,
       role: role || ROLES.DONORS,
+      address: sanitizedAddress,
+      pictures: pictures ?? [],
+      avatar,
     });
 
-    // Return user without password hash
     return user;
   }
 
   /**
-   * Find user by email (including password hash for login)
+   * Find user by identifier (email or phone)
    */
-  async findByEmail(email: string, includePassword = false): Promise<IUser | null> {
-    if (includePassword) {
-      return User.findOne({ email }).select('+passwordHash +refreshTokenHash');
+  async findByIdentifier(identifier: string, includePassword = false): Promise<IUser | null> {
+    const trimmedIdentifier = identifier.trim();
+    const conditions: FilterQuery<IUser>[] = [];
+
+    if (trimmedIdentifier.includes('@')) {
+      conditions.push({ email: trimmedIdentifier.toLowerCase() });
+    } else {
+      conditions.push({ phone: trimmedIdentifier });
+      // Also attempt email fallback in case phone-like string is actually stored as email
+      conditions.push({ email: trimmedIdentifier.toLowerCase() });
     }
-    return User.findOne({ email });
+
+    const query: FilterQuery<IUser> =
+      conditions.length > 1
+        ? { $or: conditions }
+        : conditions.length === 1
+        ? conditions[0]
+        : {};
+
+    if (includePassword) {
+      const user = await User.findOne(query)
+        .select('+passwordHash +refreshTokenHash')
+        .exec();
+      return user as IUser | null;
+    }
+
+    const user = await User.findOne(query).exec();
+    return user as IUser | null;
   }
 
   /**
@@ -64,17 +115,61 @@ export class UserService {
    */
   async updateUser(
     id: string,
-    updates: Partial<{ name: string; email: string; role: string; avatar: string }>
+    updates: Partial<{
+      fullName: string;
+      email: string;
+      phone: string;
+      role: string;
+      avatar: string;
+      address: string;
+      pictures: string[];
+    }>
   ): Promise<IUser | null> {
-    // Check if email is being changed and if it's already taken
+    const updateData: Partial<IUser> = {};
+
+    if (updates.fullName) {
+      updateData.fullName = updates.fullName.trim();
+    }
+
     if (updates.email) {
-      const existingUser = await User.findOne({ email: updates.email });
+      const normalizedEmail = updates.email.trim().toLowerCase();
+      const existingUser = await User.findOne({ email: normalizedEmail });
       if (existingUser && existingUser.id !== id) {
         throw new ApiError(HTTP_STATUS.CONFLICT, 'Email already taken');
       }
+      updateData.email = normalizedEmail;
     }
 
-    return User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+    if (updates.phone) {
+      const normalizedPhone = updates.phone.trim();
+      const existingUser = await User.findOne({ phone: normalizedPhone });
+      if (existingUser && existingUser.id !== id) {
+        throw new ApiError(HTTP_STATUS.CONFLICT, 'Phone already taken');
+      }
+      updateData.phone = normalizedPhone;
+    }
+
+    if (updates.role) {
+      updateData.role = updates.role as Role;
+    }
+
+    if (updates.avatar !== undefined) {
+      updateData.avatar = updates.avatar;
+    }
+
+    if (updates.address !== undefined) {
+      updateData.address = updates.address?.trim();
+    }
+
+    if (updates.pictures !== undefined) {
+      updateData.pictures = updates.pictures;
+    }
+
+    return User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
   }
 
   /**

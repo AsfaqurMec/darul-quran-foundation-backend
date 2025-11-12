@@ -30,7 +30,9 @@ export const authMiddleware = (
     // Attach user to request object
     req.user = {
       id: payload.id,
-      email: payload.email,
+      identifier: payload.identifier,
+      email: payload.email ?? undefined,
+      phone: payload.phone ?? undefined,
       role: payload.role,
     };
 

@@ -4,18 +4,24 @@
  */
 
 export interface SeedConfig {
-  seedSuperAdmin: boolean;
+  seedAdmin: boolean;
   seedSampleUsers: boolean;
-  superAdmin: {
-    name: string;
-    email: string;
+  admin: {
+    fullName: string;
+    email?: string;
+    phone?: string;
     password: string;
+    address?: string;
+    pictures: string[];
   };
   sampleUsers: Array<{
-    name: string;
-    email: string;
+    fullName: string;
+    email?: string;
+    phone?: string;
     password: string;
     role: string;
+    address?: string;
+    pictures: string[];
   }>;
 }
 
@@ -24,32 +30,52 @@ export interface SeedConfig {
  * Override with environment variables or modify here
  * 
  * Environment variables:
- * - SEED_SUPERADMIN: boolean (default: true)
- * - SEED_SUPERADMIN_NAME: string (default: 'Super Admin')
- * - SEED_SUPERADMIN_EMAIL: string (default: 'superadmin@darunquran.com')
- * - SEED_SUPERADMIN_PASSWORD: string (default: 'SuperAdmin@123')
+ * - SEED_ADMIN: boolean (default: true)
+ * - SEED_ADMIN_NAME: string (default: 'Admin User')
+ * - SEED_ADMIN_EMAIL: string (default: 'admin@darunquran.com')
+ * - SEED_ADMIN_PASSWORD: string (default: 'Admin@123')
  * - SEED_SAMPLE_USERS: boolean (default: false)
  */
 export const seedConfig: SeedConfig = {
-  seedSuperAdmin: process.env.SEED_SUPERADMIN !== 'false', // Default: true
+  seedAdmin: process.env.SEED_ADMIN !== 'false', // Default: true
   seedSampleUsers: process.env.SEED_SAMPLE_USERS === 'true', // Default: false
-  superAdmin: {
-    name: process.env.SEED_SUPERADMIN_NAME || 'Super Admin',
-    email: process.env.SEED_SUPERADMIN_EMAIL || 'superadmin@darunquran.com',
-    password: process.env.SEED_SUPERADMIN_PASSWORD || 'SuperAdmin@123',
+  admin: {
+    fullName: process.env.SEED_ADMIN_NAME || 'Admin User',
+    email: process.env.SEED_ADMIN_EMAIL || 'admin@darunquran.com',
+    phone: process.env.SEED_ADMIN_PHONE,
+    password: process.env.SEED_ADMIN_PASSWORD || 'Admin@123',
+    address: process.env.SEED_ADMIN_ADDRESS,
+    pictures: process.env.SEED_ADMIN_PICTURES
+      ? process.env.SEED_ADMIN_PICTURES.split(',').map((item) => item.trim()).filter(Boolean)
+      : [],
   },
   sampleUsers: [
     {
-      name: 'Admin User',
-      email: 'admin@example.com',
-      password: 'Admin@123',
-      role: 'admin', // Use ROLES.ADMIN in seedUsers.ts
+      fullName: 'Editor User',
+      email: 'editor@example.com',
+      phone: process.env.SEED_SAMPLE_EDITOR_PHONE,
+      password: 'Editor@123',
+      role: 'editor', // Use ROLES.EDITOR in seedUsers.ts
+      address: '123 Editor Street',
+      pictures: [],
     },
     {
-      name: 'Donor User',
+      fullName: 'Donor User',
       email: 'donor@example.com',
+      phone: process.env.SEED_SAMPLE_DONOR_PHONE,
       password: 'Donor@123',
       role: 'donors', // Use ROLES.DONORS in seedUsers.ts
+      address: '456 Donor Avenue',
+      pictures: [],
+    },
+    {
+      fullName: 'Additional Admin',
+      email: 'admin@example.com',
+      phone: process.env.SEED_SAMPLE_ADMIN_PHONE,
+      password: 'Admin@123',
+      role: 'admin', // Use ROLES.ADMIN in seedUsers.ts
+      address: '789 Admin Plaza',
+      pictures: [],
     },
   ],
 };

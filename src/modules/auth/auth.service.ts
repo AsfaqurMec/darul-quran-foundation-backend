@@ -1,6 +1,5 @@
 import { userService } from '@/modules/users/user.service';
-import { comparePassword } from '@/modules/common/utils/hash';
-import { hashToken, compareToken } from '@/modules/common/utils/hash';
+import { comparePassword, hashToken } from '@/modules/common/utils/hash';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/modules/common/utils/jwt';
 import { ApiError } from '@/modules/common/middleware/error.middleware';
 import { HTTP_STATUS } from '@/constants';
@@ -12,26 +11,48 @@ export class AuthService {
    * Creates user, generates tokens, and stores refresh token hash
    */
   async register(input: RegisterInput): Promise<{
-    user: { id: string; name: string; email: string; role: string };
+    user: {
+      id: string;
+      fullName: string;
+      email?: string;
+      phone?: string;
+      role: string;
+      address?: string;
+      pictures: string[];
+    };
     accessToken: string;
     refreshToken: string;
   }> {
-    const { name, email, password, role } = input;
+    const { fullName, email, phone, password, role, address, pictures } = input;
 
     // Create user
-    const user = await userService.createUser(name, email, password, role);
+    const user = await userService.createUser({
+      fullName,
+      email,
+      phone,
+      password,
+      role,
+      address,
+      pictures,
+    });
+
+    const identifier = user.email || user.phone || '';
 
     // Generate tokens
     const accessToken = generateAccessToken({
       id: user.id,
-      email: user.email,
       role: user.role,
+      identifier,
+      email: user.email,
+      phone: user.phone,
     });
 
     const refreshToken = generateRefreshToken({
       id: user.id,
-      email: user.email,
       role: user.role,
+      identifier,
+      email: user.email,
+      phone: user.phone,
     });
 
     // Hash and store refresh token
@@ -41,9 +62,12 @@ export class AuthService {
     return {
       user: {
         id: user.id,
-        name: user.name,
+        fullName: user.fullName,
         email: user.email,
+        phone: user.phone,
         role: user.role,
+        address: user.address,
+        pictures: user.pictures || [],
       },
       accessToken,
       refreshToken,
@@ -55,14 +79,22 @@ export class AuthService {
    * Verifies credentials, generates tokens, and stores refresh token hash
    */
   async login(input: LoginInput): Promise<{
-    user: { id: string; name: string; email: string; role: string };
+    user: {
+      id: string;
+      fullName: string;
+      email?: string;
+      phone?: string;
+      role: string;
+      address?: string;
+      pictures: string[];
+    };
     accessToken: string;
     refreshToken: string;
   }> {
-    const { email, password } = input;
+    const { identifier, password } = input;
 
     // Find user with password hash
-    const user = await userService.findByEmail(email, true);
+    const user = await userService.findByIdentifier(identifier, true);
     if (!user) {
       throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Invalid credentials');
     }
@@ -73,17 +105,23 @@ export class AuthService {
       throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Invalid credentials');
     }
 
+    const resolvedIdentifier = user.email || user.phone || identifier;
+
     // Generate tokens
     const accessToken = generateAccessToken({
       id: user.id,
-      email: user.email,
       role: user.role,
+      identifier: resolvedIdentifier,
+      email: user.email,
+      phone: user.phone,
     });
 
     const refreshToken = generateRefreshToken({
       id: user.id,
-      email: user.email,
       role: user.role,
+      identifier: resolvedIdentifier,
+      email: user.email,
+      phone: user.phone,
     });
 
     // Hash and store refresh token (token rotation)
@@ -93,9 +131,12 @@ export class AuthService {
     return {
       user: {
         id: user.id,
-        name: user.name,
+        fullName: user.fullName,
         email: user.email,
+        phone: user.phone,
         role: user.role,
+        address: user.address,
+        pictures: user.pictures || [],
       },
       accessToken,
       refreshToken,
@@ -133,14 +174,18 @@ export class AuthService {
     // Generate new tokens (token rotation)
     const newAccessToken = generateAccessToken({
       id: user.id,
-      email: user.email,
       role: user.role,
+      identifier: payload.identifier || user.email || user.phone || '',
+      email: user.email,
+      phone: user.phone,
     });
 
     const newRefreshToken = generateRefreshToken({
       id: user.id,
-      email: user.email,
       role: user.role,
+      identifier: payload.identifier || user.email || user.phone || '',
+      email: user.email,
+      phone: user.phone,
     });
 
     // Store new refresh token hash

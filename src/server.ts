@@ -15,7 +15,7 @@ const startServer = async (): Promise<void> => {
     // Start Express server
     const server = app.listen(config.port, () => {
       logger.info(`🚀 Server running on port ${config.port} in ${config.nodeEnv} mode`);
-      logger.info(`📝 API available at http://localhost:${config.port}/api`);
+      logger.info(`📝 API available at http://localhost:${config.port}/api/v1`);
       logger.info(`🏥 Health check: http://localhost:${config.port}/health`);
     });
 

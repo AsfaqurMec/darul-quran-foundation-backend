@@ -31,7 +31,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use('/api/', limiter);
+app.use('/api/v1', limiter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -43,7 +43,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api', routes);
+app.use('/api/v1', routes);
 
 // 404 handler
 app.use((req, res) => {

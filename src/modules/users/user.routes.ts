@@ -20,8 +20,8 @@ router.patch('/me', validate(updateUserSchema), userController.updateMe);
 // Change password
 router.post('/me/change-password', validate(changePasswordSchema), userController.changePassword);
 
-// Get all users (superadmin and admin only)
-router.get('/', roleMiddleware(ROLES.SUPERADMIN, ROLES.ADMIN), userController.getAllUsers);
+// Get all users (admin and editor only)
+router.get('/', roleMiddleware(ROLES.ADMIN, ROLES.EDITOR), userController.getAllUsers);
 
 export default router;
 

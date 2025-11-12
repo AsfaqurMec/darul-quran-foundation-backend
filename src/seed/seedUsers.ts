@@ -6,53 +6,90 @@ import { seedConfig } from './seedData';
 
 /**
  * Seed users
- * Creates default superadmin user and optionally sample users based on configuration
+ * Creates default admin user and optionally sample users based on configuration
  */
 export const seedUsers = async (): Promise<void> => {
   try {
     logger.info('👤 Seeding users...');
 
-    // Seed superadmin user if enabled
-    if (seedConfig.seedSuperAdmin) {
-      const existingSuperAdmin = await User.findOne({ email: seedConfig.superAdmin.email });
-      if (!existingSuperAdmin) {
-        await userService.createUser(
-          seedConfig.superAdmin.name,
-          seedConfig.superAdmin.email,
-          seedConfig.superAdmin.password,
-          ROLES.SUPERADMIN
-        );
-        logger.info(`✅ Created superadmin user: ${seedConfig.superAdmin.email}`);
-        logger.info(`   Default password: ${seedConfig.superAdmin.password}`);
-        logger.warn('⚠️  IMPORTANT: Change the default superadmin password in production!');
+    // Remove legacy identifier index if it exists
+    try {
+      await User.collection.dropIndex('identifier_1');
+      logger.info('ℹ️  Dropped legacy identifier index');
+    } catch (error: unknown) {
+      const code = (error as { code?: number }).code;
+      if (code !== 27 && code !== 26) {
+        logger.warn('ℹ️  Legacy identifier index not dropped (possibly already removed):', error);
+      }
+    }
+
+    // Seed admin user if enabled
+    if (seedConfig.seedAdmin) {
+      const identifierQuery = seedConfig.admin.email
+        ? { email: seedConfig.admin.email }
+        : seedConfig.admin.phone
+        ? { phone: seedConfig.admin.phone }
+        : null;
+
+      const existingAdmin = identifierQuery ? await User.findOne(identifierQuery) : null;
+      if (!existingAdmin) {
+        await userService.createUser({
+          fullName: seedConfig.admin.fullName,
+          email: seedConfig.admin.email,
+          phone: seedConfig.admin.phone,
+          password: seedConfig.admin.password,
+          role: ROLES.ADMIN,
+          address: seedConfig.admin.address,
+          pictures: seedConfig.admin.pictures,
+        });
+        const identifier = seedConfig.admin.email || seedConfig.admin.phone || 'N/A';
+        logger.info(`✅ Created admin user: ${identifier}`);
+        logger.info(`   Default password: ${seedConfig.admin.password}`);
+        logger.warn('⚠️  IMPORTANT: Change the default admin password in production!');
       } else {
-        logger.info(`ℹ️  Superadmin user already exists: ${seedConfig.superAdmin.email}`);
+        const identifier = seedConfig.admin.email || seedConfig.admin.phone || 'N/A';
+        logger.info(`ℹ️  Admin user already exists: ${identifier}`);
       }
     }
 
     // Seed sample users if enabled (only in development or if explicitly enabled)
     if (seedConfig.seedSampleUsers || process.env.NODE_ENV === 'development') {
       for (const userData of seedConfig.sampleUsers) {
-        const existingUser = await User.findOne({ email: userData.email });
+        const orConditions = [
+          ...(userData.email ? [{ email: userData.email }] : []),
+          ...(userData.phone ? [{ phone: userData.phone }] : []),
+        ];
+
+        const existingUser =
+          orConditions.length > 0
+            ? await User.findOne({
+                $or: orConditions,
+              })
+            : null;
         if (!existingUser) {
           // Map role string to ROLES constant
           const role =
-            userData.role === 'superadmin'
-              ? ROLES.SUPERADMIN
-              : userData.role === 'admin'
+            userData.role === 'admin'
               ? ROLES.ADMIN
+              : userData.role === 'editor'
+              ? ROLES.EDITOR
               : ROLES.DONORS;
 
-          await userService.createUser(
-            userData.name,
-            userData.email,
-            userData.password,
-            role
-          );
-          logger.info(`✅ Created sample user: ${userData.email} (${role})`);
+          await userService.createUser({
+            fullName: userData.fullName,
+            email: userData.email,
+            phone: userData.phone,
+            password: userData.password,
+            role,
+            address: userData.address,
+            pictures: userData.pictures,
+          });
+          const identifier = userData.email || userData.phone || 'N/A';
+          logger.info(`✅ Created sample user: ${identifier} (${role})`);
           logger.info(`   Default password: ${userData.password}`);
         } else {
-          logger.info(`ℹ️  User already exists: ${userData.email}`);
+          const identifier = userData.email || userData.phone || 'N/A';
+          logger.info(`ℹ️  User already exists: ${identifier}`);
         }
       }
     }
