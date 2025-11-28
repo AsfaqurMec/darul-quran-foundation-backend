@@ -15,6 +15,16 @@ export const ROUTES = {
   AUTH: '/api/auth',
   USERS: '/api/users',
   UPLOADS: '/api/uploads',
+  ACTIVITIES: '/api/activities',
+  BLOGS: '/api/blogs',
+  NOTICES: '/api/notices',
+  GALLERY: '/api/gallery',
+  HERO_IMAGES: '/api/hero-images',
+  DONATIONS: '/api/donations',
+  PROGRAMS: '/api/programs',
+  DONATION_CATEGORIES: '/api/donation-categories',
+  VOLUNTEERS: '/api/v1/volunteers',
+  MEMBERS: '/api/v1/members',
 } as const;
 
 export const HTTP_STATUS = {

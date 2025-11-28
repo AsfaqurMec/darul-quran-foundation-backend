@@ -40,8 +40,16 @@ export const errorMiddleware = (
 
   // Handle known error types
   if (err instanceof ApiError) {
+    // Log validation details for debugging
+    if (err.details && Array.isArray(err.details)) {
+      logger.error('Validation errors:', {
+        details: err.details,
+        body: req.body,
+      });
+    }
+    
     const payload: Record<string, unknown> = {
-      status: 'error',
+      success: false,
       message: err.message,
     };
     if (typeof err.details !== 'undefined') {
@@ -59,7 +67,7 @@ export const errorMiddleware = (
     }));
 
     res.status(HTTP_STATUS.BAD_REQUEST).json({
-      status: 'error',
+      success: false,
       message: 'Validation failed',
       details: errors,
     });
@@ -74,7 +82,7 @@ export const errorMiddleware = (
     }));
 
     res.status(HTTP_STATUS.BAD_REQUEST).json({
-      status: 'error',
+      success: false,
       message: 'Validation failed',
       details: errors,
     });
@@ -84,7 +92,7 @@ export const errorMiddleware = (
   // Handle Mongoose duplicate key errors
   if (err instanceof mongoose.Error && (err as any).code === 11000) {
     res.status(HTTP_STATUS.CONFLICT).json({
-      status: 'error',
+      success: false,
       message: 'Duplicate entry',
       details: 'A record with this value already exists',
     });
@@ -94,7 +102,7 @@ export const errorMiddleware = (
   // Handle JWT errors
   if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
     res.status(HTTP_STATUS.UNAUTHORIZED).json({
-      status: 'error',
+      success: false,
       message: 'Invalid or expired token',
     });
     return;
@@ -102,7 +110,7 @@ export const errorMiddleware = (
 
   // Default: Internal server error
   const defaultPayload: Record<string, unknown> = {
-    status: 'error',
+    success: false,
     message:
       config.nodeEnv === 'production'
         ? 'Internal server error'

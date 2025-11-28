@@ -23,7 +23,7 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
   }> {
-    const { fullName, email, phone, password, role, address, pictures } = input;
+    const { fullName, email, phone, password, role } = input;
 
     // Create user
     const user = await userService.createUser({
@@ -32,8 +32,6 @@ export class AuthService {
       phone,
       password,
       role,
-      address,
-      pictures,
     });
 
     const identifier = user.email || user.phone || '';
@@ -66,7 +64,7 @@ export class AuthService {
         email: user.email,
         phone: user.phone,
         role: user.role,
-        address: user.address,
+       // address: user.address,
         pictures: user.pictures || [],
       },
       accessToken,
@@ -135,7 +133,7 @@ export class AuthService {
         email: user.email,
         phone: user.phone,
         role: user.role,
-        address: user.address,
+       // address: user.address,
         pictures: user.pictures || [],
       },
       accessToken,

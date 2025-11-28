@@ -4,6 +4,11 @@ import { ApiError } from '@/modules/common/middleware/error.middleware';
 import { HTTP_STATUS } from '@/constants';
 import { asyncHandler } from '@/modules/common/middleware/async.handler';
 import { config } from '@/config';
+import { userService } from '@/modules/users/user.service';
+import jwt from 'jsonwebtoken';
+import { sendEmail } from '@/modules/common/utils/email';
+import { hashPassword } from '@/modules/common/utils/hash';
+import { User } from '@/modules/users/user.model';
 
 export class AuthController {
   /**
@@ -23,7 +28,7 @@ export class AuthController {
     });
 
     res.status(HTTP_STATUS.CREATED).json({
-      status: 'success',
+      success: true,
       data: {
         user: result.user,
         accessToken: result.accessToken,
@@ -48,9 +53,9 @@ export class AuthController {
     });
 
     res.status(HTTP_STATUS.OK).json({
-      status: 'success',
+      success: true,
+      message: 'Login successful',
       data: {
-        user: result.user,
         accessToken: result.accessToken,
       },
     });
@@ -82,7 +87,7 @@ export class AuthController {
     });
 
     res.status(HTTP_STATUS.OK).json({
-      status: 'success',
+      success: true,
       data: {
         accessToken: result.accessToken,
       },
@@ -106,40 +111,171 @@ export class AuthController {
     });
 
     res.status(HTTP_STATUS.OK).json({
-      status: 'success',
+      success: true,
       message: 'Logged out successfully',
     });
   });
 
   /**
-   * Request password reset
-   * POST /api/auth/password-reset
-   * TODO: Implement email service integration
+   * Change password (per spec under /auth)
+   * POST /api/auth/change-password
    */
-  requestPasswordReset = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { email } = req.body;
-      // await authService.requestPasswordReset(email);
-      res.status(HTTP_STATUS.OK).json({
-        status: 'success',
-        message: 'Password reset email sent (not implemented)',
-      });
+  changePassword = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Not authenticated');
     }
-  );
+
+    const { currentPassword, newPassword } = req.body as {
+      currentPassword: string;
+      newPassword: string;
+    };
+
+    await userService.changePassword(req.user.id, currentPassword, newPassword);
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: 'Password changed',
+    });
+  });
 
   /**
-   * Reset password with token
-   * POST /api/auth/password-reset/:token
-   * TODO: Implement token verification and password update
+   * Forgot password (send reset link)
+   * POST /api/auth/forgot-password
+   */
+  forgotPassword = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { email, callbackUrl } = req.body as { email: string; callbackUrl: string };
+
+    try {
+      const user = await userService.findByIdentifier(email);
+
+      if (user?.email) {
+        // Create a short-lived reset token signed with access secret
+        const token = jwt.sign(
+          { sub: user.id, kind: 'reset' },
+          config.jwt.accessSecret,
+          { expiresIn: '15m' }
+        );
+
+        const resetUrl = `${callbackUrl}/reset-password?token=${encodeURIComponent(token)}`;
+
+        // Send email (logs to console if SMTP not configured)
+        const html = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+              .content { padding: 20px; background-color: #f9f9f9; }
+              .button-container { text-align: center; margin: 30px 0; }
+              .button { display: inline-block; padding: 14px 32px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; }
+              .button:hover { background-color: #45a049; }
+              .info-box { background-color: #fff; border-left: 4px solid #FF9800; padding: 15px; margin: 20px 0; }
+              .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+              .link-fallback { color: #666; font-size: 12px; margin-top: 15px; word-break: break-all; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>DarulQuran</h1>
+              </div>
+              <div class="content">
+                <p>Dear User,</p>
+                <p>We received a request to reset your password for your DarulQuran account.</p>
+                <p>Click the button below to reset your password:</p>
+                <div class="button-container">
+                  <a href="${resetUrl}" class="button">Reset Password</a>
+                </div>
+                <div class="info-box">
+                  <p style="margin: 0;"><strong>Important:</strong> This link will expire in 15 minutes for security reasons.</p>
+                </div>
+                <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
+                <p>For security reasons, if you continue to receive these emails, please contact our support team.</p>
+                <p>Best regards,<br>DarulQuran Team</p>
+                <div class="link-fallback">
+                  <p style="margin: 5px 0;">If the button doesn't work, copy and paste this link into your browser:</p>
+                  <p style="margin: 5px 0;">${resetUrl}</p>
+                </div>
+              </div>
+              <div class="footer">
+                <p>This is an automated email. Please do not reply to this message.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+
+        const text = `
+DarulQuran - Password Reset Request
+
+Dear User,
+
+We received a request to reset your password for your DarulQuran account.
+
+Reset your password using this link (expires in 15 minutes):
+${resetUrl}
+
+Important: This link will expire in 15 minutes for security reasons.
+
+If you did not request a password reset, please ignore this email. Your password will remain unchanged.
+
+For security reasons, if you continue to receive these emails, please contact our support team.
+
+Best regards,
+DarulQuran Team
+
+---
+This is an automated email. Please do not reply to this message.
+        `;
+
+        await sendEmail({
+          to: user.email,
+          subject: 'DarulQuran - Password Reset Request',
+          html,
+          text,
+        });
+      }
+    } catch {
+      // Intentionally swallow errors to avoid user enumeration
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: 'If an account exists, a reset link was sent',
+    });
+  });
+
+  /**
+   * Reset password with token (from body)
+   * POST /api/auth/reset-password
    */
   resetPassword = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const { token } = req.params;
-    const { newPassword } = req.body;
-    // await authService.resetPassword(token, newPassword);
-    res.status(HTTP_STATUS.OK).json({
-      status: 'success',
-      message: 'Password reset (not implemented)',
-    });
+    const { token, newPassword } = req.body as { token: string; newPassword: string };
+
+    try {
+      const payload = jwt.verify(token, config.jwt.accessSecret) as any;
+      if (!payload || payload.kind !== 'reset' || !payload.sub) {
+        throw new Error('Invalid token');
+      }
+
+      const user = await User.findById(payload.sub).select('+passwordHash');
+      if (!user) {
+        throw new ApiError(HTTP_STATUS.NOT_FOUND, 'User not found');
+      }
+
+      user.passwordHash = await hashPassword(newPassword);
+      await user.save();
+
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: 'Password reset successful',
+      });
+    } catch {
+      throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'Invalid or expired token');
+    }
   });
 }
 

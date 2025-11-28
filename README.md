@@ -45,6 +45,12 @@ REFRESH_TOKEN_EXPIRES=7d
 CORS_ORIGIN=http://localhost:3000
 UPLOAD_DIR=./uploads
 SALT_ROUNDS=12
+SSLCOMMERZ_STORE_ID=your_store_id
+SSLCOMMERZ_STORE_PASSWORD=your_store_password
+SSLCOMMERZ_IS_LIVE=false
+MEMBER_PAYMENT_SESSION_TTL_HOURS=24
+MEMBER_PAYMENT_DOC_MAX_SIZE=5242880
+MEMBER_PAYMENT_DOC_ALLOWED_TYPES=pdf,jpg,jpeg,png
 ```
 
 ### 3. Seed Database
@@ -97,6 +103,16 @@ npm start
 - `POST /api/uploads/avatar` - Upload avatar image (requires auth)
 - `POST /api/uploads/image` - Upload general image (requires auth)
 - `GET /api/uploads/:filename` - Serve uploaded file
+
+### Member Applications
+
+- `POST /api/v1/members/initiate-payment` - Create SSLCommerz session and receive `gatewayUrl`
+- `POST /api/v1/members/complete-payment` - Finalize online payment and persist application data
+- `POST /api/v1/members/apply` - Submit bank transfer/deposit application with payment slip upload
+- `GET /api/v1/members` *(admin)* - List applications with pagination, filters, and search
+- `GET /api/v1/members/:id` *(admin)* - Retrieve a single application
+- `PATCH /api/v1/members/:id/status` *(admin)* - Update application status (pending_approval/approved/rejected)
+- `DELETE /api/v1/members/:id` *(admin)* - Delete non-approved applications (cleans payment documents)
 
 ## Authentication Flow
 
@@ -298,6 +314,8 @@ curl -X GET http://localhost:5000/api/users/me \
 
 ISC
 
-#   D a r u l Q u r a n F o u n d a t i o n - B a c k e n d  
- #   D a r u l Q u r a n F o u n d a t i o n - B a c k e n d  
+#   D a r u l Q u r a n F o u n d a t i o n - B a c k e n d 
+ 
+ #   D a r u l Q u r a n F o u n d a t i o n - B a c k e n d 
+ 
  

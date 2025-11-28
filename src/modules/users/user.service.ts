@@ -3,6 +3,8 @@ import { User, IUser } from './user.model';
 import { hashPassword, comparePassword, compareToken } from '@/modules/common/utils/hash';
 import { ApiError } from '@/modules/common/middleware/error.middleware';
 import { HTTP_STATUS, ROLES, Role } from '@/constants';
+import { Donation } from '@/modules/donations/donation.model';
+import { DONATION_STATUS } from '@/modules/donations/donation.model';
 
 export class UserService {
   /**
@@ -105,9 +107,13 @@ export class UserService {
 
   /**
    * Get all users (admin only)
+   * Note: This method is kept for backward compatibility
+   * For pagination, search, and filters, use getUsersWithPagination instead
    */
   async getAllUsers(): Promise<IUser[]> {
-    return User.find().select('-passwordHash -refreshTokenHash').lean();
+    return User.find({ isDeleted: { $ne: true } })
+      .select('-passwordHash -refreshTokenHash')
+      .lean();
   }
 
   /**
@@ -120,9 +126,9 @@ export class UserService {
       email: string;
       phone: string;
       role: string;
-      avatar: string;
-      address: string;
-      pictures: string[];
+      //avatar: string;
+      //address: string;
+      //pictures: string[];
     }>
   ): Promise<IUser | null> {
     const updateData: Partial<IUser> = {};
@@ -153,17 +159,17 @@ export class UserService {
       updateData.role = updates.role as Role;
     }
 
-    if (updates.avatar !== undefined) {
-      updateData.avatar = updates.avatar;
-    }
+    // if (updates.avatar !== undefined) {
+    //   updateData.avatar = updates.avatar;
+    // }
 
-    if (updates.address !== undefined) {
-      updateData.address = updates.address?.trim();
-    }
+    // if (updates.address !== undefined) {
+    //   updateData.address = updates.address?.trim();
+    // }
 
-    if (updates.pictures !== undefined) {
-      updateData.pictures = updates.pictures;
-    }
+    // if (updates.pictures !== undefined) {
+    //   updateData.pictures = updates.pictures;
+    // }
 
     return User.findByIdAndUpdate(
       id,
@@ -221,6 +227,189 @@ export class UserService {
     }
 
     return compareToken(token, user.refreshTokenHash);
+  }
+
+  /**
+   * Create admin or editor user
+   */
+  async createAdminUser(input: {
+    fullName: string;
+    email: string;
+    password: string;
+    role: 'admin' | 'editor';
+  }): Promise<IUser> {
+    const { fullName, email, password, role } = input;
+
+    const sanitizedEmail = email.trim().toLowerCase();
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: sanitizedEmail });
+    if (existingUser) {
+      throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'Email already exists');
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(password);
+
+    // Create user
+    const user = await User.create({
+      fullName,
+      email: sanitizedEmail,
+      passwordHash,
+      role: role as Role,
+    });
+
+    return user;
+  }
+
+  /**
+   * Get users with pagination, search, and filters
+   */
+  async getUsersWithPagination(params: {
+    page: number;
+    limit: number;
+    searchTerm?: string;
+    role?: Role;
+  }): Promise<{
+    users: Array<IUser & { totalDonate: number }>;
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+    };
+  }> {
+    const { page, limit, searchTerm, role } = params;
+    const skip = (page - 1) * limit;
+
+    // Build query
+    const query: FilterQuery<IUser> = {
+      isDeleted: { $ne: true }, // Exclude soft-deleted users
+    };
+
+    if (role) {
+      query.role = role;
+    }
+
+    if (searchTerm) {
+      query.email = { $regex: searchTerm, $options: 'i' };
+    }
+
+    // Get users
+    const users = await User.find(query)
+      .select('-passwordHash -refreshTokenHash')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    // Get total count
+    const totalItems = await User.countDocuments(query);
+
+    // Calculate totalDonate for each user
+    const usersWithDonations = await Promise.all(
+      users.map(async (user) => {
+        let totalDonate = 0;
+
+        // Calculate total donations from completed donations
+        if (user.email || user.phone) {
+          const contact = user.email || user.phone || '';
+          const donations = await Donation.find({
+            contact,
+            status: DONATION_STATUS.COMPLETED,
+          }).select('amount');
+
+          totalDonate = donations.reduce((sum, donation) => sum + donation.amount, 0);
+        }
+
+        return {
+          ...user,
+          totalDonate,
+        };
+      })
+    );
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      users: usersWithDonations as Array<IUser & { totalDonate: number }>,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit,
+      },
+    };
+  }
+
+  /**
+   * Update user by ID (admin only)
+   */
+  async updateUserById(
+    id: string,
+    updates: Partial<{
+      fullName: string;
+      email: string;
+      phone: string;
+      role: Role;
+    }>
+  ): Promise<IUser | null> {
+    const updateData: Partial<IUser> = {};
+
+    if (updates.fullName) {
+      updateData.fullName = updates.fullName.trim();
+    }
+
+    if (updates.email) {
+      const normalizedEmail = updates.email.trim().toLowerCase();
+      const existingUser = await User.findOne({ email: normalizedEmail, isDeleted: { $ne: true } });
+      if (existingUser && existingUser.id !== id) {
+        throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'Email already exists');
+      }
+      updateData.email = normalizedEmail;
+    }
+
+    if (updates.phone) {
+      const normalizedPhone = updates.phone.trim();
+      const existingUser = await User.findOne({ phone: normalizedPhone, isDeleted: { $ne: true } });
+      if (existingUser && existingUser.id !== id) {
+        throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'Phone already exists');
+      }
+      updateData.phone = normalizedPhone;
+    }
+
+    if (updates.role) {
+      updateData.role = updates.role;
+    }
+
+    // if (updates.companyName !== undefined) {
+    //   updateData.companyName = updates.companyName?.trim() || '';
+    // }
+
+    // if (updates.fullAddress !== undefined) {
+    //   updateData.fullAddress = updates.fullAddress?.trim() || '';
+    // }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    return user;
+  }
+
+  /**
+   * Delete user by ID (permanent delete)
+   */
+  async deleteUserById(id: string): Promise<void> {
+    const user = await User.findById(id);
+    if (!user) {
+      throw new ApiError(HTTP_STATUS.NOT_FOUND, 'User not found');
+    }
+    
+    // Permanent delete
+    await User.findByIdAndDelete(id);
   }
 }
 

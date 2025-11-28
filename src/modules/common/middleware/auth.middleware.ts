@@ -16,14 +16,15 @@ export const authMiddleware = (
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new ApiError(
-        HTTP_STATUS.UNAUTHORIZED,
-        'Authorization token required'
-      );
-    }
+    // Accept either a raw token (frontend sends raw token) or standard Bearer token
+    const token =
+      authHeader && authHeader.startsWith('Bearer ')
+        ? authHeader.substring(7)
+        : authHeader || '';
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    if (!token) {
+      throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Authorization token required');
+    }
 
     const payload = verifyAccessToken(token);
 

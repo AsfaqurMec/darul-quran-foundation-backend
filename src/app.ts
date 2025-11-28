@@ -9,7 +9,8 @@ import { errorMiddleware } from '@/modules/common/middleware/error.middleware';
 import { logger } from '@/modules/common/utils/logger';
 import routes from './routes';
 import { config } from './config';
-
+// const SSLCommerzPayment = require("sslcommerz-lts");
+// import { ObjectId } from 'mongoose';
 const app = express();
 
 // Security middleware
@@ -25,8 +26,8 @@ app.use(cookieParser()); // Parse cookies
 // Rate limiting
 // Note: In production, use Redis store for distributed rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 150 * 60 * 1000, // 15 minutes
+  max: 10000, // Limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -52,6 +53,52 @@ app.use((req, res) => {
     message: 'Route not found',
   });
 });
+
+//payment codes - Note: This appears to be duplicate/unused code. Consider removing if not needed.
+
+// const store_id = process.env.SSLCOMMERZ_STORE_ID;
+// const store_password = process.env.SSLCOMMERZ_STORE_PASSWORD;
+// const is_live = process.env.SSLCOMMERZ_IS_LIVE;
+
+//  app.post("/payment", async (req, res) => {
+//   const tran_id = new ObjectID().toString();
+//   const payload = req.body;
+//     const data = {
+//       total_amount: payload.amount,
+//       tran_id: tran_id,
+//       success_url: `http://localhost:5000/api/v1/payment/success/${tran_id}`,
+//       fail_url: `http://localhost:5000/api/v1/payment/fail/${tran_id}`,
+//       cancel_url: `http://localhost:5000/api/v1/payment/cancel/${tran_id}`
+//     };
+
+//     const sslcz = new SSLCommerzPayment(config.sslcommerz.storeId, config.sslcommerz.storePassword, config.sslcommerz.isLive);
+//     sslcz.init(data).then((apiResponse: any) => {
+//         let GatewayPageURL = apiResponse.GatewayPageURL;
+//         res.send({ url: GatewayPageURL });
+//     });
+
+//    app.post("/payment/success/:tranId", async (req, res) => {
+//        //db te save hobe with status payed
+//       //  if( create){
+//       //   res.redirect(`frontend success url`)
+//       //  }
+//    })
+
+//    app.post("/payment/fail/:tranId", async (req, res) => {
+//     //db te save hobe with status payed
+//    //  if( create){
+//    //   res.redirect(`frontend success url`)
+//    //  }
+// })
+
+// app.post("/payment/cancel/:tranId", async (req, res) => {
+//   //db te save hobe with status payed
+//  //  if( create){
+//  //   res.redirect(`frontend success url`)
+//  //  }
+// })
+
+//  })
 
 // Error handling middleware (must be last)
 app.use(errorMiddleware);

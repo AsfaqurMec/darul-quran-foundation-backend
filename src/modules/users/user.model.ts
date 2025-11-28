@@ -8,9 +8,13 @@ export interface IUser extends Document {
   passwordHash: string;
   role: Role;
   refreshTokenHash?: string; // For single device, use array for multi-device
-  avatar?: string;
-  address?: string;
+  // avatar?: string;
+  // address?: string;
   pictures: string[];
+  // companyName?: string;
+  // fullAddress?: string;
+  // images?: string[];
+  // isDeleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,20 +60,40 @@ const userSchema = new Schema<IUser>(
       type: String,
       select: false, // Don't include refresh token hash in queries by default
     },
-    avatar: {
-      type: String,
-      default: '',
-    },
-    address: {
-      type: String,
-      default: '',
-      trim: true,
-      maxlength: [255, 'Address must not exceed 255 characters'],
-    },
-    pictures: {
-      type: [String],
-      default: [],
-    },
+    // avatar: {
+    //   type: String,
+    //   default: '',
+    // },
+    // address: {
+    //   type: String,
+    //   default: '',
+    //   trim: true,
+    //   maxlength: [255, 'Address must not exceed 255 characters'],
+    // },
+    // pictures: {
+    //   type: [String],
+    //   default: [],
+    // },
+    // companyName: {
+    //   type: String,
+    //   default: '',
+    //   trim: true,
+    //   maxlength: [255, 'Company name must not exceed 255 characters'],
+    // },
+    // fullAddress: {
+    //   type: String,
+    //   default: '',
+    //   trim: true,
+    //   maxlength: [500, 'Full address must not exceed 500 characters'],
+    // },
+    // images: {
+    //   type: [String],
+    //   default: [],
+    // },
+    // isDeleted: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt
@@ -79,6 +103,8 @@ const userSchema = new Schema<IUser>(
 // Indexes for faster queries
 userSchema.index({ email: 1 }, { sparse: true });
 userSchema.index({ phone: 1 }, { sparse: true });
+userSchema.index({ isDeleted: 1 });
+userSchema.index({ role: 1 });
 
 // Use mongoose-unique-validator for better duplicate key error messages
 // Note: This is already in package.json, uncomment if needed

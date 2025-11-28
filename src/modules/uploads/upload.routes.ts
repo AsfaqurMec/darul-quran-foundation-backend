@@ -42,7 +42,7 @@ router.post(
     const fileUrl = getFileUrl(req.file.filename);
 
     // Update user avatar
-    await userService.updateUser(req.user.id, { avatar: fileUrl });
+  //  await userService.updateUser(req.user.id, { avatar: fileUrl });
 
     res.status(HTTP_STATUS.OK).json({
       status: 'success',

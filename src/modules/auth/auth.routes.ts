@@ -18,9 +18,12 @@ router.post('/refresh', authController.refresh);
 // Logout (requires authentication)
 router.post('/logout', authMiddleware, authController.logout);
 
-// Password reset (TODO)
-router.post('/password-reset', authController.requestPasswordReset);
-router.post('/password-reset/:token', authController.resetPassword);
+// Change password (auth required)
+router.post('/change-password', authMiddleware, authController.changePassword);
+
+// Forgot/Reset password (per spec)
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
 
 export default router;
 
