@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { programService } from './program.service';
 import { ApiError } from '../common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
+import { HTTP_STATUS } from '../../constants';
 import { asyncHandler } from '../common/middleware/async.handler';
 import { getFileUrl } from '../uploads/upload.middleware';
 import { config } from '../../config';
