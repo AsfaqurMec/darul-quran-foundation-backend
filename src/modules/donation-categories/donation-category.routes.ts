@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { donationCategoryController } from './donation-category.controller';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import { createDonationCategorySchema, updateDonationCategorySchema } from './donation-category.schema';
-import { upload } from '@/modules/uploads/upload.middleware';
+import { upload } from '../uploads/upload.middleware';
 
 const router = Router();
 

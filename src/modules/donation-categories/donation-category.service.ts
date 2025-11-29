@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 import { DonationCategory, IDonationCategory } from './donation-category.model';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
 import { generateSlug } from './donation-category.schema';
 
 export class DonationCategoryService {

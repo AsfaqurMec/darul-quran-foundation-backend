@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { authService } from './auth.service';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
-import { asyncHandler } from '@/modules/common/middleware/async.handler';
-import { config } from '@/config';
-import { userService } from '@/modules/users/user.service';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
+import { asyncHandler } from '../common/middleware/async.handler';
+import { config } from '../../config';
+import { userService } from '../users/user.service';
 import jwt from 'jsonwebtoken';
-import { sendEmail } from '@/modules/common/utils/email';
-import { hashPassword } from '@/modules/common/utils/hash';
-import { User } from '@/modules/users/user.model';
+import { sendEmail } from '../common/utils/email';
+import { hashPassword } from '../common/utils/hash';
+import { User } from '../users/user.model';
 
 export class AuthController {
   /**

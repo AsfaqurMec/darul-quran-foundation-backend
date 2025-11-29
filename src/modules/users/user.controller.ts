@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { userService } from './user.service';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
-import { asyncHandler } from '@/modules/common/middleware/async.handler';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
+import { asyncHandler } from '../common/middleware/async.handler';
 
 export class UserController {
   /**

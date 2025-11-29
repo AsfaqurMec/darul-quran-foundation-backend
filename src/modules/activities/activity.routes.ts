@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { activityController } from './activity.controller';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import { createActivitySchema, updateActivitySchema } from './activity.schema';
 
 const router = Router();

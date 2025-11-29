@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import mongoose from 'mongoose';
-import { config } from '@/config';
-import { HTTP_STATUS } from '@/constants';
-import { logger } from '@/modules/common/utils/logger';
+import { config } from '../../../config';
+import { HTTP_STATUS } from '../../../constants';
+import { logger } from '../utils/logger';
 
 /**
  * Custom API Error class

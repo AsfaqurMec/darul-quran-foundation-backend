@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema, ZodError } from 'zod';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
-import { config } from '@/config';
+import { ApiError } from './error.middleware';
+import { HTTP_STATUS } from '../../../constants';
+import { config } from '../../../config';
 
 /**
  * Request validation middleware using Zod

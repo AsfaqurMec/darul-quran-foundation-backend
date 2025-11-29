@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { donationController } from './donation.controller';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import { createDonationSchema } from './donation.schema';
 
 const router = Router();

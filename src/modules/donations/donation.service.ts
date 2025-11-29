@@ -1,10 +1,10 @@
 import { FilterQuery } from 'mongoose';
 import { Donation, IDonation, DonationStatus, DonationPurpose } from './donation.model';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
-import { userService } from '@/modules/users/user.service';
-import { sendPasswordEmail } from '@/modules/common/utils/email';
-import { logger } from '@/modules/common/utils/logger';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
+import { userService } from '../users/user.service';
+import { sendPasswordEmail } from '../common/utils/email';
+import { logger } from '../common/utils/logger';
 
 export interface DonationFilters {
   status?: DonationStatus;

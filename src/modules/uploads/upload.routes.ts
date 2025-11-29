@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import path from 'path';
 import fs from 'fs';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
 import { uploadSingle, getFileUrl } from './upload.middleware';
-import { asyncHandler } from '@/modules/common/middleware/async.handler';
-import { userService } from '@/modules/users/user.service';
-import { HTTP_STATUS } from '@/constants';
+import { asyncHandler } from '../common/middleware/async.handler';
+import { userService } from '../users/user.service';
+import { HTTP_STATUS } from '../../constants';
 import { Request, Response } from 'express';
-import { config } from '@/config';
+import { config } from '../../config';
 
 const router = Router();
 

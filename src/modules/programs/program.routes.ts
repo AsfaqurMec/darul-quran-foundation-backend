@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { programController } from './program.controller';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import { createProgramSchema, updateProgramSchema } from './program.schema';
-import { upload } from '@/modules/uploads/upload.middleware';
+import { upload } from '../uploads/upload.middleware';
 
 const router = Router();
 

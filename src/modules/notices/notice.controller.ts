@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { noticeService } from './notice.service';
-import { HTTP_STATUS } from '@/constants';
-import { asyncHandler } from '@/modules/common/middleware/async.handler';
+import { HTTP_STATUS } from '../../constants';
+import { asyncHandler } from '../common/middleware/async.handler';
 
 export class NoticeController {
   /**

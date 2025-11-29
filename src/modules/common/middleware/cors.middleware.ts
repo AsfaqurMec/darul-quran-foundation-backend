@@ -1,6 +1,6 @@
 import cors from 'cors';
 import { Request, Response, NextFunction } from 'express';
-import { config } from '@/config';
+import { config } from '../../../config';
 
 /**
  * SSLCommerz domains that should be allowed for payment callbacks

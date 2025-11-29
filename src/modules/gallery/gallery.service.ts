@@ -1,6 +1,6 @@
 import { GalleryItem, IGalleryItem } from './gallery.model';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
 
 export class GalleryService {
   /**

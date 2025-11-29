@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { blogController } from './blog.controller';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import { createBlogSchema, updateBlogSchema } from './blog.schema';
-import { upload } from '@/modules/uploads/upload.middleware';
+import { upload } from '../uploads/upload.middleware';
 
 const router = Router();
 

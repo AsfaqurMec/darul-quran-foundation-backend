@@ -1,8 +1,8 @@
-import { userService } from '@/modules/users/user.service';
-import { comparePassword, hashToken } from '@/modules/common/utils/hash';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/modules/common/utils/jwt';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
+import { userService } from '../users/user.service';
+import { comparePassword, hashToken } from '../common/utils/hash';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../common/utils/jwt';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
 import type { RegisterInput, LoginInput } from './auth.schema';
 
 export class AuthService {

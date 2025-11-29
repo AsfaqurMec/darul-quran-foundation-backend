@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { noticeController } from './notice.controller';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import { createNoticeSchema, updateNoticeSchema } from './notice.schema';
 
 const router = Router();

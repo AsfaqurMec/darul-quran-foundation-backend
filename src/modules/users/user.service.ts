@@ -1,10 +1,10 @@
 import { FilterQuery } from 'mongoose';
 import { User, IUser } from './user.model';
-import { hashPassword, comparePassword, compareToken } from '@/modules/common/utils/hash';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS, ROLES, Role } from '@/constants';
-import { Donation } from '@/modules/donations/donation.model';
-import { DONATION_STATUS } from '@/modules/donations/donation.model';
+import { hashPassword, comparePassword, compareToken } from '../common/utils/hash';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS, ROLES, Role } from '../../constants';
+import { Donation } from '../donations/donation.model';
+import { DONATION_STATUS } from '../donations/donation.model';
 
 export class UserService {
   /**

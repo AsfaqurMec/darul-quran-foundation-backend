@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { loginSchema, registerSchema } from '@/modules/users/user.schema';
+import { loginSchema, registerSchema } from '../users/user.schema';
 
 /**
  * Zod schemas for authentication

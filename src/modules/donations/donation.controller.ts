@@ -215,12 +215,12 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { donationService } from './donation.service';
-import { HTTP_STATUS } from '@/constants';
-import { asyncHandler } from '@/modules/common/middleware/async.handler';
+import { HTTP_STATUS } from '../../constants';
+import { asyncHandler } from '../common/middleware/async.handler';
 import { DonationStatus, DonationPurpose, DONATION_STATUS, IDonation, Donation } from './donation.model';
 import axios from 'axios';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { config } from '@/config';
+import { ApiError } from '../common/middleware/error.middleware';
+import { config } from '../../config';
 import mongoose from 'mongoose';
 
 const SSLCommerzPayment = require("sslcommerz-lts");

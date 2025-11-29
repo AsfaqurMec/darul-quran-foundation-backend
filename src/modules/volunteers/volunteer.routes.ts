@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { volunteerController } from './volunteer.controller';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import {
   createVolunteerSchema,
   updateVolunteerStatusSchema,
   getVolunteersQuerySchema,
 } from './volunteer.schema';
-import { uploadVolunteerProfileImage } from '@/modules/uploads/upload.middleware';
+import { uploadVolunteerProfileImage } from '../uploads/upload.middleware';
 
 const router = Router();
 

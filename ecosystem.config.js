@@ -15,6 +15,8 @@ module.exports = {
     {
       name: 'darunquran-backend',
       script: './dist/server.js',
+      // Use ts-node + tsconfig-paths so that TypeScript path aliases (@/...) work in production
+   //   node_args: '-r ts-node/register -r tsconfig-paths/register',
       instances: 1, // For single server, use 1. For multi-core, use 'max' or specific number
       exec_mode: 'fork', // Use 'cluster' mode for multiple instances
       env: {

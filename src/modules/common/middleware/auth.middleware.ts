@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyAccessToken } from '@/modules/common/utils/jwt';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
+import { verifyAccessToken } from '../utils/jwt';
+import { ApiError } from './error.middleware';
+import { HTTP_STATUS } from '../../../constants';
 
 /**
  * Authentication middleware

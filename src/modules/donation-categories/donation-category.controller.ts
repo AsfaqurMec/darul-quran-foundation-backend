@@ -2,11 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { donationCategoryService } from './donation-category.service';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
-import { asyncHandler } from '@/modules/common/middleware/async.handler';
-import { getFileUrl } from '@/modules/uploads/upload.middleware';
-import { config } from '@/config';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
+import { asyncHandler } from '../common/middleware/async.handler';
+import { getFileUrl } from '../uploads/upload.middleware';
+import { config } from '../../config';
 
 export class DonationCategoryController {
   /**

@@ -1,6 +1,6 @@
 import { HeroImage, IHeroImage } from './hero-image.model';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
 
 export class HeroImageService {
   /**

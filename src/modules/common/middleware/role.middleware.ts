@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
-import { Role } from '@/constants';
+import { ApiError } from './error.middleware';
+import { HTTP_STATUS } from '../../../constants';
+import { Role } from '../../../constants';
 
 /**
  * Role-based access control (RBAC) middleware

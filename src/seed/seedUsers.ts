@@ -1,7 +1,7 @@
-import { User } from '@/modules/users/user.model';
-import { userService } from '@/modules/users/user.service';
-import { ROLES } from '@/constants';
-import { logger } from '@/modules/common/utils/logger';
+import { User } from '../modules/users/user.model';
+import { userService } from '../modules/users/user.service';
+import { ROLES } from '../constants';
+import { logger } from '../modules/common/utils/logger';
 import { seedConfig } from './seedData';
 
 /**

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { config } from '@/config';
+import { config } from '../../config';
 import { MemberGender, MemberType } from './member.model';
 
 export type MemberPaymentSessionStatus = 'pending' | 'completed' | 'failed' | 'expired';

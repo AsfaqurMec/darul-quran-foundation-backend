@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { userController } from './user.controller';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { roleMiddleware } from '@/modules/common/middleware/role.middleware';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { roleMiddleware } from '../common/middleware/role.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import {
   updateUserSchema,
   changePasswordSchema,
@@ -10,7 +10,7 @@ import {
   updateUserAdminSchema,
   getUsersQuerySchema,
 } from './user.schema';
-import { ROLES } from '@/constants';
+import { ROLES } from '../../constants';
 
 const router = Router();
 

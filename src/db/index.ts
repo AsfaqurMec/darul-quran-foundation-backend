@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { config } from '@/config';
-import { logger } from '@/modules/common/utils/logger';
+import { config } from '../config';
+import { logger } from '../modules/common/utils/logger';
 
 /**
  * Connect to MongoDB database

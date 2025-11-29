@@ -1,7 +1,7 @@
 import app from './app';
 import { connectDB } from './db';
 import { config } from './config';
-import { logger } from '@/modules/common/utils/logger';
+import { logger } from './modules/common/utils/logger';
 
 /**
  * Start server

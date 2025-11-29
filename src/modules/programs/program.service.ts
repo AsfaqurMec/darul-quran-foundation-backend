@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 import { Program, IProgram } from './program.model';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
 import { generateSlug } from './program.schema';
 
 export interface ProgramFilters {

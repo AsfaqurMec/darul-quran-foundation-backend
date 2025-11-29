@@ -3,9 +3,9 @@ const multer = require('multer');
 import path from 'path';
 import fs from 'fs';
 import { Request } from 'express';
-import { config } from '@/config';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
+import { config } from '../../config';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
 
 // Ensure upload directory exists
 const uploadDir = path.resolve(process.cwd(), config.upload.dir);

@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { connectDB } from '@/db';
-import { logger } from '@/modules/common/utils/logger';
+import { connectDB } from '../db';
+import { logger } from '../modules/common/utils/logger';
 import { seedUsers } from './seedUsers';
-import { User } from '@/modules/users/user.model';
+import { User } from '../modules/users/user.model';
 
 /**
  * Reset and seed database

@@ -8,11 +8,11 @@ import {
   InitiateMemberPaymentInput,
   SubmitMemberApplicationInput,
 } from './member.schema';
-import { config } from '@/config';
-import { ApiError } from '@/modules/common/middleware/error.middleware';
-import { HTTP_STATUS } from '@/constants';
-import { logger } from '@/modules/common/utils/logger';
-import { sendMemberApplicationStatusEmail } from '@/modules/common/utils/email';
+import { config } from '../../config';
+import { ApiError } from '../common/middleware/error.middleware';
+import { HTTP_STATUS } from '../../constants';
+import { logger } from '../common/utils/logger';
+import { sendMemberApplicationStatusEmail } from '../common/utils/email';
 
 export interface MemberApplicationFilters {
   applicationStatus?: 'pending_approval' | 'approved' | 'rejected';

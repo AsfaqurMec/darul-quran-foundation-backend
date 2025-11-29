@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { memberController } from './member.controller';
-import { validate } from '@/modules/common/middleware/validate.middleware';
+import { validate } from '../common/middleware/validate.middleware';
 import {
   initiateMemberPaymentSchema,
   completeMemberPaymentSchema,
@@ -9,10 +9,10 @@ import {
   updateMemberApplicationStatusSchema,
   updateMemberApplicationPaymentStatusSchema,
 } from './member.schema';
-import { uploadMemberPaymentDocument } from '@/modules/uploads/upload.middleware';
-import { authMiddleware } from '@/modules/common/middleware/auth.middleware';
-import { roleMiddleware } from '@/modules/common/middleware/role.middleware';
-import { ROLES } from '@/constants';
+import { uploadMemberPaymentDocument } from '../uploads/upload.middleware';
+import { authMiddleware } from '../common/middleware/auth.middleware';
+import { roleMiddleware } from '../common/middleware/role.middleware';
+import { ROLES } from '../../constants';
 
 const router = Router();
 
