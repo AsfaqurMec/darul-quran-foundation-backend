@@ -12,6 +12,7 @@ import programRoutes from './modules/programs/program.routes';
 import donationCategoryRoutes from './modules/donation-categories/donation-category.routes';
 import volunteerRoutes from './modules/volunteers/volunteer.routes';
 import memberRoutes from './modules/members/member.routes';
+import galleryCategoryRoutes from './modules/gallery-category/gallery-category.routes';
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.use('/programs', programRoutes);
 router.use('/donation-categories', donationCategoryRoutes);
 router.use('/volunteers', volunteerRoutes);
 router.use('/members', memberRoutes);
+router.use('/gallery-category', galleryCategoryRoutes);
  
 export default router;
 
