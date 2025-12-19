@@ -32,7 +32,7 @@ export const originMiddleware = (
   if (!origin) {
     throw new ApiError(
       HTTP_STATUS.FORBIDDEN,
-      'Origin header is required'
+      'You are not allowed to access this resource'
     );
   }
 
@@ -40,7 +40,7 @@ export const originMiddleware = (
   if (!allowedOrigins.includes(origin)) {
     throw new ApiError(
       HTTP_STATUS.FORBIDDEN,
-      'Access denied: Origin not allowed'
+      'You are not allowed to access this resource'
     );
   }
 
