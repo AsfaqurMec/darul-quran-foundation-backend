@@ -4,14 +4,15 @@ import { authMiddleware } from '../common/middleware/auth.middleware';
 import { validate } from '../common/middleware/validate.middleware';
 import { createGalleryItemSchema, updateGalleryItemSchema } from './gallery.schema';
 import { upload } from '../uploads/upload.middleware';
+import { originMiddleware } from '../common/middleware/origin.middleware';
 
 const router = Router();
 
 // Get all gallery items (public)
-router.get('/', galleryController.getAllGalleryItems);
+router.get('/', originMiddleware, galleryController.getAllGalleryItems);
 
 // Get single gallery item (public)
-router.get('/:id', galleryController.getGalleryItemById);
+router.get('/:id', originMiddleware, galleryController.getGalleryItemById);
 
 // All mutation routes require authentication
 // router.use(authMiddleware);

@@ -1,0 +1,49 @@
+import { Request, Response, NextFunction } from 'express';
+import { ApiError } from './error.middleware';
+import { HTTP_STATUS } from '../../../constants';
+
+/**
+ * Origin validation middleware
+ * Only allows requests from specified origins
+ */
+export const originMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const allowedOrigins = [
+    'https://api.darulquranfoundation.org',
+    'http://localhost:3000',
+    'https://localhost:3000', // Also allow https for localhost
+  ];
+
+  // Get origin from Origin header or extract from Referer header
+  let origin: string | null = req.headers.origin || null;
+  
+  if (!origin && req.headers.referer) {
+    try {
+      origin = new URL(req.headers.referer).origin;
+    } catch {
+      // Invalid referer URL, ignore
+    }
+  }
+
+  // If no origin is present, reject the request
+  if (!origin) {
+    throw new ApiError(
+      HTTP_STATUS.FORBIDDEN,
+      'Origin header is required'
+    );
+  }
+
+  // Check if origin is in allowed list
+  if (!allowedOrigins.includes(origin)) {
+    throw new ApiError(
+      HTTP_STATUS.FORBIDDEN,
+      'Access denied: Origin not allowed'
+    );
+  }
+
+  next();
+};
+

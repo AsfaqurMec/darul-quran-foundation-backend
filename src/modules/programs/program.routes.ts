@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { programController } from './program.controller';
 import { authMiddleware } from '../common/middleware/auth.middleware';
+import { originMiddleware } from '../common/middleware/origin.middleware';
 import { validate } from '../common/middleware/validate.middleware';
 import { createProgramSchema, updateProgramSchema } from './program.schema';
 import { upload } from '../uploads/upload.middleware';
@@ -8,13 +9,13 @@ import { upload } from '../uploads/upload.middleware';
 const router = Router();
 
 // Get all programs (public)
-router.get('/', programController.getAllPrograms);
+router.get('/', originMiddleware, programController.getAllPrograms);
 
 // Get program by slug (public)
-router.get('/slug/:slug', programController.getProgramBySlug);
+router.get('/slug/:slug', originMiddleware, programController.getProgramBySlug);
 
 // Get single program by ID (public)
-router.get('/:id', programController.getProgramById);
+router.get('/:id', originMiddleware, programController.getProgramById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);

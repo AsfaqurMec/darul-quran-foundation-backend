@@ -3,6 +3,7 @@ import { galleryCategoryController } from './gallery-category.controller';
 import { authMiddleware } from '../common/middleware/auth.middleware';
 import { validate } from '../common/middleware/validate.middleware';
 import { createGalleryCategorySchema, updateGalleryCategorySchema } from './gallery-category.schema';
+import { originMiddleware } from '../common/middleware/origin.middleware';
 
 const router = Router();
 
@@ -10,9 +11,9 @@ const router = Router();
 // router.use(authMiddleware);
 
 // Get all gallery categories with pagination and search
-router.get('/', galleryCategoryController.getAllGalleryCategories);
+router.get('/', originMiddleware, galleryCategoryController.getAllGalleryCategories);
 // Get single gallery category by ID
-router.get('/:id', galleryCategoryController.getGalleryCategoryById);
+router.get('/:id', originMiddleware, galleryCategoryController.getGalleryCategoryById);
 
 router.use(authMiddleware);
 

@@ -4,14 +4,15 @@ import { authMiddleware } from '../common/middleware/auth.middleware';
 import { validate } from '../common/middleware/validate.middleware';
 import { createHeroImageSchema, updateHeroImageSchema } from './hero-image.schema';
 import { upload } from '../uploads/upload.middleware';
+import { originMiddleware } from '../common/middleware/origin.middleware';
 
 const router = Router();
 
 // Get all hero images (public, but can filter by isActive)
-router.get('/', heroImageController.getAllHeroImages);
+router.get('/', originMiddleware, heroImageController.getAllHeroImages);
 
 // Get single hero image (public)
-router.get('/:id', heroImageController.getHeroImageById);
+router.get('/:id', originMiddleware, heroImageController.getHeroImageById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);

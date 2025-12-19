@@ -4,14 +4,15 @@ import { authMiddleware } from '../common/middleware/auth.middleware';
 import { validate } from '../common/middleware/validate.middleware';
 import { createBlogSchema, updateBlogSchema } from './blog.schema';
 import { upload } from '../uploads/upload.middleware';
+import { originMiddleware } from '../common/middleware/origin.middleware';
 
 const router = Router();
 
 // Get all blogs (public)
-router.get('/', blogController.getAllBlogs);
+router.get('/', originMiddleware, blogController.getAllBlogs);
 
 // Get single blog (public)
-router.get('/:id', blogController.getBlogById);
+router.get('/:id', originMiddleware, blogController.getBlogById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);
