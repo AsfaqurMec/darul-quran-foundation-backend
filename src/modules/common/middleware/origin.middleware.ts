@@ -12,6 +12,7 @@ export const originMiddleware = (
   next: NextFunction
 ): void => {
   const allowedOrigins = [
+    'https://darulquranfoundation.org',
     'https://api.darulquranfoundation.org',
     'http://localhost:3000',
     'https://localhost:3000', // Also allow https for localhost
