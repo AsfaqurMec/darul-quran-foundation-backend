@@ -8,10 +8,10 @@ import { originMiddleware } from '../common/middleware/origin.middleware';
 const router = Router();
 
 // Get all notices (public)
-router.get('/', originMiddleware, noticeController.getAllNotices);
+router.get('/', noticeController.getAllNotices);
 
 // Get single notice (public)
-router.get('/:id', originMiddleware, noticeController.getNoticeById);
+router.get('/:id', noticeController.getNoticeById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);

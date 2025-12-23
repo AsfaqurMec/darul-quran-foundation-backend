@@ -9,13 +9,13 @@ import { originMiddleware } from '../common/middleware/origin.middleware';
 const router = Router();
 
 // Get all donation categories (public)
-router.get('/', originMiddleware, donationCategoryController.getAllDonationCategories);
+router.get('/', donationCategoryController.getAllDonationCategories);
 
 // Get donation category by slug (public)
-router.get('/:slug', originMiddleware, donationCategoryController.getDonationCategoryBySlug);
+router.get('/:slug', donationCategoryController.getDonationCategoryBySlug);
 
 // Get single donation category by ID (public)
-router.get('/:id', originMiddleware, donationCategoryController.getDonationCategoryById);
+router.get('/:id', donationCategoryController.getDonationCategoryById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);

@@ -9,13 +9,13 @@ import { upload } from '../uploads/upload.middleware';
 const router = Router();
 
 // Get all programs (public)
-router.get('/', originMiddleware, programController.getAllPrograms);
+router.get('/',  programController.getAllPrograms);
 
 // Get program by slug (public)
-router.get('/slug/:slug', originMiddleware, programController.getProgramBySlug);
+router.get('/slug/:slug',  programController.getProgramBySlug);
 
 // Get single program by ID (public)
-router.get('/:id', originMiddleware, programController.getProgramById);
+router.get('/:id',  programController.getProgramById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);
