@@ -9,10 +9,10 @@ import { originMiddleware } from '../common/middleware/origin.middleware';
 const router = Router();
 
 // Get all gallery items (public)
-router.get('/', originMiddleware, galleryController.getAllGalleryItems);
+router.get('/', galleryController.getAllGalleryItems);
 
 // Get single gallery item (public)
-router.get('/:id', originMiddleware, galleryController.getGalleryItemById);
+router.get('/:id', galleryController.getGalleryItemById);
 
 // All mutation routes require authentication
 // router.use(authMiddleware);

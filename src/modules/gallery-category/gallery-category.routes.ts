@@ -11,9 +11,9 @@ const router = Router();
 // router.use(authMiddleware);
 
 // Get all gallery categories with pagination and search
-router.get('/', originMiddleware, galleryCategoryController.getAllGalleryCategories);
+router.get('/', galleryCategoryController.getAllGalleryCategories);
 // Get single gallery category by ID
-router.get('/:id', originMiddleware, galleryCategoryController.getGalleryCategoryById);
+router.get('/:id', galleryCategoryController.getGalleryCategoryById);
 
 router.use(authMiddleware);
 
