@@ -9,10 +9,10 @@ import { originMiddleware } from '../common/middleware/origin.middleware';
 const router = Router();
 
 // Get all blogs (public)
-router.get('/', originMiddleware, blogController.getAllBlogs);
+router.get('/',  blogController.getAllBlogs);
 
 // Get single blog (public)
-router.get('/:id', originMiddleware, blogController.getBlogById);
+router.get('/:id', blogController.getBlogById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);
