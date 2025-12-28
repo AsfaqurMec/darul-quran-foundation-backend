@@ -14,6 +14,11 @@ export const originMiddleware = (
   res: Response,
   next: NextFunction
 ): void => {
+  // Allow OPTIONS requests (CORS preflight) - CORS middleware handles these
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
   // Get allowed origins from config (supports '*' for development)
   const configOrigins = config.cors.origin;
   
@@ -23,6 +28,8 @@ export const originMiddleware = (
     'https://api.darulquranfoundation.org',
     'http://localhost:3000',
     'https://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://127.0.0.1:3000',
   ];
 
   // Combine config origins with hardcoded ones, remove duplicates
@@ -31,7 +38,13 @@ export const originMiddleware = (
   ];
 
   // If '*' is in allowed origins, allow all requests (development mode)
-  if (allowedOrigins.includes('*')) {
+  // Also bypass in development environment
+  if (allowedOrigins.includes('*') || config.nodeEnv === 'development') {
+    logger.debug('Origin check bypassed', {
+      path: req.path,
+      method: req.method,
+      reason: allowedOrigins.includes('*') ? 'CORS_ORIGIN is *' : 'Development mode',
+    });
     return next();
   }
 
@@ -50,12 +63,55 @@ export const originMiddleware = (
     }
   }
 
+  // Log request details for debugging
+  logger.debug('Origin validation check', {
+    path: req.path,
+    method: req.method,
+    origin,
+    referer: req.headers.referer,
+    allowedOrigins,
+    userAgent: req.headers['user-agent'],
+  });
+
+  // For server-side requests (like Next.js server components), be more lenient
+  // If there's a Referer header but no Origin, and it's from an allowed domain, allow it
+  if (!origin && req.headers.referer) {
+    try {
+      const refererUrl = new URL(req.headers.referer);
+      const refererOrigin = refererUrl.origin;
+      
+      // Check if referer origin matches any allowed origin
+      if (allowedOrigins.some(allowed => {
+        try {
+          const allowedUrl = new URL(allowed);
+          return allowedUrl.origin === refererOrigin;
+        } catch {
+          // If allowed is not a full URL, do simple string matching
+          return allowed === refererOrigin || refererOrigin.includes(allowed);
+        }
+      })) {
+        logger.debug('Origin validation passed via Referer', {
+          path: req.path,
+          refererOrigin,
+        });
+        return next();
+      }
+    } catch (error) {
+      // Invalid referer, continue to check origin
+    }
+  }
+
   // If no origin is present, reject the request
   if (!origin) {
     logger.warn('Request rejected: No origin header', {
       path: req.path,
       method: req.method,
       referer: req.headers.referer,
+      headers: {
+        origin: req.headers.origin,
+        referer: req.headers.referer,
+        'user-agent': req.headers['user-agent'],
+      },
     });
     throw new ApiError(
       HTTP_STATUS.FORBIDDEN,
@@ -63,19 +119,42 @@ export const originMiddleware = (
     );
   }
 
-  // Check if origin is in allowed list
-  if (!allowedOrigins.includes(origin)) {
+  // Normalize origin for comparison (remove trailing slashes, ensure protocol consistency)
+  const normalizedOrigin = origin.trim().replace(/\/$/, '');
+  const normalizedAllowed = allowedOrigins.map(o => o.trim().replace(/\/$/, ''));
+
+  // Check if origin is in allowed list (exact match or contains)
+  const isAllowed = normalizedAllowed.some(allowed => {
+    if (allowed === '*') return true;
+    if (normalizedOrigin === allowed) return true;
+    // Also check if origin contains the allowed domain (for subdomains)
+    if (normalizedOrigin.includes(allowed) || allowed.includes(normalizedOrigin)) {
+      return true;
+    }
+    return false;
+  });
+
+  if (!isAllowed) {
     logger.warn('Request rejected: Origin not allowed', {
       path: req.path,
       method: req.method,
-      origin,
-      allowedOrigins,
+      origin: normalizedOrigin,
+      allowedOrigins: normalizedAllowed,
+      headers: {
+        origin: req.headers.origin,
+        referer: req.headers.referer,
+      },
     });
     throw new ApiError(
       HTTP_STATUS.FORBIDDEN,
-      `You are not allowed to access this resource. Origin '${origin}' is not in the allowed list.`
+      `You are not allowed to access this resource. Origin '${normalizedOrigin}' is not in the allowed list. Allowed origins: ${normalizedAllowed.join(', ')}`
     );
   }
+
+  logger.debug('Origin validation passed', {
+    path: req.path,
+    origin: normalizedOrigin,
+  });
 
   next();
 };
