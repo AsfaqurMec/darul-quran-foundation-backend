@@ -69,7 +69,13 @@ const standardCorsMiddleware = cors({
   },
   credentials: true, // Allow cookies/auth headers
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'Accept-Language',
+    'Origin',
+    'Referer',
+  ],
 });
 
 /**
