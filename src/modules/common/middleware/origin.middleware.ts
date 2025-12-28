@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiError } from './error.middleware';
 import { HTTP_STATUS } from '../../../constants';
+import { logger } from '../utils/logger';
 
 /**
  * Origin validation middleware
@@ -25,7 +26,8 @@ export const originMiddleware = (
     try {
       origin = new URL(req.headers.referer).origin;
     } catch {
-      // Invalid referer URL, ignore
+      logger.error('Invalid referer URL', { referer: req.headers.referer });
+      origin = null;
     }
   }
 
