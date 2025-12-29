@@ -5,7 +5,6 @@ import { tokenMiddleware } from '../common/middleware/token.middleware';
 import { validate } from '../common/middleware/validate.middleware';
 import { createBlogSchema, updateBlogSchema } from './blog.schema';
 import { upload } from '../uploads/upload.middleware';
-import { originMiddleware } from '../common/middleware/origin.middleware';
 
 const router = Router();
 
