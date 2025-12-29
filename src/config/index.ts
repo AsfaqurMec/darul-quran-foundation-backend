@@ -36,6 +36,7 @@ const envSchema = z.object({
     .transform(Number)
     .default(String(5 * 1024 * 1024)),
   MEMBER_PAYMENT_DOC_ALLOWED_TYPES: z.string().default('pdf,jpg,jpeg,png'),
+  FRONTEND_TOKEN: z.string().min(1, 'FRONTEND_TOKEN is required'),
 });
 
 // Validate and parse environment variables
@@ -96,6 +97,7 @@ export const config = {
       allowedFileTypes: memberDocTypes,
     },
   },
+  frontendToken: parseResult.data.FRONTEND_TOKEN,
 } as const;
 
 // Type export for config
