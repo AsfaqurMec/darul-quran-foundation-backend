@@ -15,7 +15,7 @@ const app = express();
 
 // Trust proxy - Required when behind reverse proxy (nginx, load balancer, etc.)
 // This allows express-rate-limit to correctly identify client IPs from X-Forwarded-For header
-app.set('trust proxy', true);
+app.set('trust proxy', false);
 
 // Security middleware
 app.use(helmet()); // Sets various HTTP headers for security

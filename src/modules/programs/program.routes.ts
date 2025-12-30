@@ -5,17 +5,25 @@ import { originMiddleware } from '../common/middleware/origin.middleware';
 import { validate } from '../common/middleware/validate.middleware';
 import { createProgramSchema, updateProgramSchema } from './program.schema';
 import { upload } from '../uploads/upload.middleware';
+import { tokenMiddleware } from '../common/middleware/token.middleware';
 
 const router = Router();
 
+// // Get all programs (admin)
+// router.get('/admin', authMiddleware, programController.getAllPrograms);
+// // Get program by slug (admin)
+// router.get('/admin/slug/:slug', authMiddleware, programController.getProgramBySlug);
+// // Get single program by ID (admin)
+// router.get('/admin/:id', authMiddleware, programController.getProgramById);
+
 // Get all programs (public)
-router.get('/',  programController.getAllPrograms);
+router.get('/', tokenMiddleware, programController.getAllPrograms);
 
 // Get program by slug (public)
-router.get('/slug/:slug',  programController.getProgramBySlug);
+router.get('/slug/:slug', tokenMiddleware, programController.getProgramBySlug);
 
 // Get single program by ID (public)
-router.get('/:id',  programController.getProgramById);
+router.get('/:id', tokenMiddleware, programController.getProgramById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);

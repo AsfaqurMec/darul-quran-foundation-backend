@@ -8,18 +8,31 @@ import { upload } from '../uploads/upload.middleware';
 
 const router = Router();
 
+
+
+// Get all blogs (admin) - requires authentication
+router.get('/admin', authMiddleware, blogController.getAllBlogs);
+router.get('/admin/:id', authMiddleware, blogController.getBlogById);
+
+
 // Get all blogs (public) - requires frontend token
 router.get('/', tokenMiddleware, blogController.getAllBlogs);
 
 // Get single blog (public) - requires frontend token
 router.get('/:id', tokenMiddleware, blogController.getBlogById);
 
+
 // All mutation routes require authentication
 router.use(authMiddleware);
 
-// Create new blog - handle thumbnail (single) and images (multiple) file uploads
+
+
+// Get single blog (admin) - requires authentication
+
+
+// Create new blog (admin) - handle thumbnail (single) and images (multiple) file uploads
 router.post(
-  '/',
+  '/admin',
   upload.fields([
     { name: 'thumbnail', maxCount: 1 },
     { name: 'images', maxCount: 20 },

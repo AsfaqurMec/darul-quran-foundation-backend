@@ -48,6 +48,13 @@ export const errorMiddleware = (
       });
     }
     
+    // Set cache-control headers for unauthorized responses to prevent browser caching
+    if (err.statusCode === HTTP_STATUS.UNAUTHORIZED) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+    
     const payload: Record<string, unknown> = {
       success: false,
       message: err.message,
@@ -101,6 +108,10 @@ export const errorMiddleware = (
 
   // Handle JWT errors
   if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+    // Set cache-control headers to prevent browser caching unauthorized responses
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
       message: 'Invalid or expired token',

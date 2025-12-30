@@ -4,14 +4,21 @@ import { authMiddleware } from '../common/middleware/auth.middleware';
 import { validate } from '../common/middleware/validate.middleware';
 import { createNoticeSchema, updateNoticeSchema } from './notice.schema';
 import { originMiddleware } from '../common/middleware/origin.middleware';
+import { tokenMiddleware } from '../common/middleware/token.middleware';
 
 const router = Router();
 
+// Get all notices (admin)
+router.get('/admin', authMiddleware, noticeController.getAllNotices);
+
+// Get single notice by ID (admin)
+router.get('/admin/:id', authMiddleware, noticeController.getNoticeById);
+
 // Get all notices (public)
-router.get('/', noticeController.getAllNotices);
+router.get('/', tokenMiddleware, noticeController.getAllNotices);
 
 // Get single notice (public)
-router.get('/:id', noticeController.getNoticeById);
+router.get('/:id', tokenMiddleware, noticeController.getNoticeById);
 
 // All mutation routes require authentication
 router.use(authMiddleware);

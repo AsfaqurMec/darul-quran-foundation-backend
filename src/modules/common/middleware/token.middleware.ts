@@ -13,6 +13,12 @@ export const tokenMiddleware = (
   next: NextFunction
 ): void => {
   try {
+    // Set cache-control headers to prevent browser caching
+    // This ensures the browser always makes a new request, which will be validated by middleware
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     const authHeader = req.headers.authorization;
 
     // Accept either a raw token (frontend sends raw token) or standard Bearer token
@@ -26,8 +32,8 @@ export const tokenMiddleware = (
     }
 
     // Get the expected token from environment variable
-    const expectedToken = "f3a1d9c6b87e4f209ad4c0c8c1f5e92e3b6a7c4de2af41b0c8f5a6d2c917eb3a";
-
+   // const expectedToken = "f3a1d9c6b87e4f209ad4c0c8c1f5e92e3b6a7c4de2af41b0c8f5a6d2c917eb3a";
+    const expectedToken = process.env.API_TOKEN;
     if (!expectedToken) {
       throw new ApiError(
         HTTP_STATUS.INTERNAL_ERROR,
