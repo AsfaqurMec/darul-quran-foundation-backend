@@ -145,7 +145,7 @@ npm ci --production
 
 ```bash
 cp env.example.txt .env
-nano .env
+
 ```
 
 Update the `.env` file with your production values:
