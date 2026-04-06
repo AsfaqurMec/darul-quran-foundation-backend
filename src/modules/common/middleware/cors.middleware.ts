@@ -2,6 +2,9 @@ import cors from 'cors';
 import { Request, Response, NextFunction } from 'express';
 import { config } from '../../../config';
 
+/** Strip trailing slashes so https://a.com matches https://a.com/ in CORS_ORIGIN */
+const normalizeOrigin = (value: string) => value.trim().replace(/\/+$/, '');
+
 /**
  * SSLCommerz domains that should be allowed for payment callbacks
  */
@@ -60,11 +63,16 @@ const standardCorsMiddleware = cors({
       return callback(null, true);
     }
 
-    // Check if origin is in allowed list
-    if (config.cors.origin.includes(origin)) {
+    const normalizedRequest = normalizeOrigin(origin);
+    const allowed = config.cors.origin.some(
+      (o) => normalizeOrigin(o) === normalizedRequest
+    );
+    if (allowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // Do not pass an Error: that hits errorMiddleware and responds without CORS headers,
+      // so browsers report "No 'Access-Control-Allow-Origin'" on preflight.
+      callback(null, false);
     }
   },
   credentials: true, // Allow cookies/auth headers
